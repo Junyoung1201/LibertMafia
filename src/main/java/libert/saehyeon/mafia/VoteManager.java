@@ -88,7 +88,7 @@ public class VoteManager {
         }
 
         target.setGameMode(org.bukkit.GameMode.SPECTATOR);
-        Bukkit.broadcastMessage("§7"+target.getName() + "(이)가§f 투표로 처형되었습니다.");
+        Bukkit.broadcastMessage("§7"+target.getName() + "§f(이)가 투표로 처형되었습니다.");
 
         GameManager.checkCitizenWin();
     }

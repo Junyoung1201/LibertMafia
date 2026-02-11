@@ -184,8 +184,6 @@ public class ClueManager {
         ItemMeta meta = weapon.getItemMeta();
         meta.setDisplayName("§c나이프");
         meta.setLore(java.util.List.of("§f1회용 무기입니다.","§f암살할 사람을 공격하여 처치할 수 있습니다."));
-        PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(weaponKey, PersistentDataType.BYTE, (byte) 1);
         weapon.setItemMeta(meta);
         return weapon;
     }
@@ -194,8 +192,7 @@ public class ClueManager {
         if (item == null || item.getType() != Material.IRON_SWORD || !item.hasItemMeta()) {
             return false;
         }
-        PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
-        return container.has(weaponKey, PersistentDataType.BYTE);
+        return item.getItemMeta().getDisplayName().equals("§c나이프");
     }
 
     public static boolean isValidClueRecipe(ItemStack[] matrix) {
@@ -222,5 +219,72 @@ public class ClueManager {
         }
         return new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
     }
-}
 
+    public static boolean teleportPlayersInRegion(List<Player> players, int minY, int maxY) {
+        if (players == null || players.isEmpty()) {
+            return false;
+        }
+        if (!isRegionReady()) {
+            return false;
+        }
+
+        RegionBounds bounds = RegionBounds.from(pos1.getBlockX(), pos1.getBlockY(), pos1.getBlockZ(),
+                pos2.getBlockX(), pos2.getBlockY(), pos2.getBlockZ());
+
+        int clampedMinY = Math.max(minY, bounds.getMinY());
+        int clampedMaxY = Math.min(maxY, bounds.getMaxY());
+        if (clampedMinY > clampedMaxY) {
+            return false;
+        }
+
+        World world = pos1.getWorld();
+        Random random = new Random();
+
+        for (Player player : players) {
+            Location location = findRandomLocation(world, bounds, clampedMinY, clampedMaxY, random);
+            if (location != null) {
+                player.teleport(location);
+            }
+        }
+
+        return true;
+    }
+
+    private static Location findRandomLocation(World world, RegionBounds bounds, int minY, int maxY, Random random) {
+        Location fallback = new Location(world,
+                bounds.getMinX() + 0.5,
+                minY,
+                bounds.getMinZ() + 0.5);
+
+        for (int i = 0; i < 20; i++) {
+            int x = random.nextInt(bounds.getMaxX() - bounds.getMinX() + 1) + bounds.getMinX();
+            int y = random.nextInt(maxY - minY + 1) + minY;
+            int z = random.nextInt(bounds.getMaxZ() - bounds.getMinZ() + 1) + bounds.getMinZ();
+
+            if (isSafeSpawn(world, x, y, z)) {
+                return new Location(world, x + 0.5, y, z + 0.5);
+            }
+        }
+
+        return fallback;
+    }
+
+    private static boolean isSafeSpawn(World world, int x, int y, int z) {
+        if (world == null) {
+            return false;
+        }
+        Material feet = world.getBlockAt(x, y, z).getType();
+        Material head = world.getBlockAt(x, y + 1, z).getType();
+        Material ground = world.getBlockAt(x, y - 1, z).getType();
+
+        if (!feet.isAir() || !head.isAir()) {
+            return false;
+        }
+
+        if (ground == Material.WATER || ground == Material.BUBBLE_COLUMN) {
+            return false;
+        }
+
+        return ground.isSolid();
+    }
+}

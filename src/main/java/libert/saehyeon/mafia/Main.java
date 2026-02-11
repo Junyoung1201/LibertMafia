@@ -1,9 +1,14 @@
 package libert.saehyeon.mafia;
 
-import org.bukkit.Bukkit;
+import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public final class Main extends JavaPlugin {
 
@@ -11,6 +16,7 @@ public final class Main extends JavaPlugin {
     public void onEnable() {
         // Plugin startup logic
         saveDefaultConfig();
+        RoleManager.initialize(this);
         GameManager.initialize(this);
         VoteManager.initialize(this);
         PoliceManager.initialize(this);
@@ -25,6 +31,16 @@ public final class Main extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new RegionSelectListener(), this);
         getServer().getPluginManager().registerEvents(new ClueCraftListener(), this);
         getServer().getPluginManager().registerEvents(new WeaponListener(), this);
+        getServer().getPluginManager().registerEvents(new CorpseChestListener(), this);
+
+        Bukkit.getScheduler().runTaskLater(this, () -> {
+            Bukkit.getWorlds().forEach(world -> {
+                world.setGameRule(GameRules.SHOW_DEATH_MESSAGES,false);
+                world.setGameRule(GameRules.SHOW_ADVANCEMENT_MESSAGES,false);
+                world.setGameRule(GameRules.ADVANCE_TIME,false);
+                world.setGameRule(GameRules.ADVANCE_WEATHER,false);
+            });
+        },10);
     }
 
     @Override
@@ -63,6 +79,101 @@ public final class Main extends JavaPlugin {
             }
             getConfig().set("debug.enabled", enabled);
             saveConfig();
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("역할")) {
+            if (args.length < 2) {
+                sender.sendMessage("사용법: /역할 [플레이어] [역할]");
+                sender.sendMessage("가능한 역할: 마피아, 경찰, 시민");
+                return true;
+            }
+
+            String targetName = args[0];
+            String roleName = args[1];
+            var target = Bukkit.getPlayerExact(targetName);
+            if (target == null) {
+                sender.sendMessage("플레이어를 찾을 수 없습니다: " + targetName);
+                return true;
+            }
+
+            boolean success = RoleManager.setRole(target, roleName);
+            if (!success) {
+                sender.sendMessage("알 수 없는 역할입니다. 가능한 역할: 마피아, 경찰, 시민");
+                return true;
+            }
+
+            sender.sendMessage(target.getName() + "님의 역할을 " + RoleManager.getRole(target) + "로 설정했습니다.");
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("시체상자")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("플레이어만 사용할 수 있습니다.");
+                return true;
+            }
+
+            boolean hasClue = false;
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (ClueManager.isClueItem(item)) {
+                    hasClue = true;
+                    break;
+                }
+            }
+            if (!hasClue) {
+                sender.sendMessage("단서 아이템을 가진 경우에만 시체 상자를 생성할 수 있습니다.");
+                return true;
+            }
+
+            List<ItemStack> items = new ArrayList<>();
+            for (ItemStack item : player.getInventory().getContents()) {
+                if (item != null && item.getType() != Material.AIR) {
+                    items.add(item);
+                }
+            }
+            for (ItemStack armor : player.getInventory().getArmorContents()) {
+                if (armor != null && armor.getType() != Material.AIR) {
+                    items.add(armor);
+                }
+            }
+            ItemStack offhand = player.getInventory().getItemInOffHand();
+            if (offhand != null && offhand.getType() != Material.AIR) {
+                items.add(offhand);
+            }
+
+            player.getInventory().clear();
+            player.getInventory().setArmorContents(null);
+            player.getInventory().setItemInOffHand(null);
+            player.setGameMode(GameMode.SPECTATOR);
+
+            boolean created = WeaponListener.createCorpseChest(player.getLocation(), items);
+            if (!created) {
+                sender.sendMessage("시체 상자를 생성할 수 없습니다.");
+            }
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("단서숨기기")) {
+            if (sender instanceof Player player) {
+                boolean success = ClueManager.placeCluesOnce(player);
+                if (!success) {
+                    sender.sendMessage("단서 숨기기에 실패했습니다. 범위/상자 상태를 확인해주세요.");
+                }
+                return true;
+            }
+
+            boolean success = ClueManager.placeCluesOnce(null);
+            if (!success) {
+                sender.sendMessage("단서 숨기기에 실패했습니다. 범위/상자 상태를 확인해주세요.");
+            }
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("랜덤티피")) {
+            boolean success = ClueManager.teleportPlayersInRegion(GameManager.getPlayers(), 65, 68);
+            if (!success) {
+                sender.sendMessage("랜덤 티피에 실패했습니다. 플레이 구역을 먼저 설정하세요.");
+            }
             return true;
         }
 

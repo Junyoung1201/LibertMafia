@@ -18,7 +18,7 @@ public class GameManager {
     private static final int DEFAULT_NIGHT_SECONDS = 10 * 60;
     private static final int DEFAULT_DAY_SECONDS = 5 * 60;
     private static final int DEBUG_NIGHT_SECONDS = 30;
-    private static final int DEBUG_DAY_SECONDS = 10;
+    private static final int DEBUG_DAY_SECONDS = 15;
     private static final int VOTE_SECONDS = 60;
 
     private static JavaPlugin plugin;
@@ -98,13 +98,14 @@ public class GameManager {
                 updateBossBarTitle("밤 시간", true);
                 PoliceManager.resetNightInvestigations();
                 MafiaManager.startNight();
+                RoleManager.giveMafiaWeaponsForNight();
+                ClueManager.teleportPlayersInRegion(GameManager.getPlayers(), 65, 79);
             }
             case DAY -> {
                 totalSeconds = daySeconds;
                 ensureBossBar(BarColor.BLUE);
                 updateBossBarTitle("낮 시간", true);
                 closePoliceGuiForAll();
-                MafiaManager.closeMafiaGuiForAll();
                 Bukkit.broadcastMessage(MafiaManager.consumeNightKillMessage());
             }
             case VOTE -> {
