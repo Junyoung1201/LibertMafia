@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
 }
 
 tasks {
@@ -52,4 +53,12 @@ processResources {
     filesMatching('plugin.yml') {
         expand props
     }
+}
+
+jar {
+    destinationDirectory = file("A:\\Minecraft\\리버트\\[1.21.11] 리버트 마피아\\plugins")
+}
+
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
 }
