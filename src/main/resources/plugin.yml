@@ -1,0 +1,8 @@
+name: LibertMafia
+version: '1.0'
+main: libert.saehyeon.mafia.Main
+api-version: '1.21'
+prefix: LIBERT_MAFIA
+authors: [ 이준영 ]
+description: 리버트 마피아 게임
+website: https://github.com/Junyoung1201
