@@ -154,4 +154,56 @@ public class RoleManager {
         PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
         return container.has(mafiaWeaponKey, PersistentDataType.BYTE);
     }
+
+    public static boolean assignRolesWithForcedMafia(String playerName) {
+        List<Player> players = new ArrayList<>(GameManager.getPlayers());
+        if (players.size() < 2) {
+            return false;
+        }
+        if (playerName == null || playerName.isBlank()) {
+            return false;
+        }
+
+        Player forcedMafia = null;
+        for (Player player : players) {
+            if (playerName.equals(player.getName())) {
+                forcedMafia = player;
+                break;
+            }
+        }
+        if (forcedMafia == null) {
+            return false;
+        }
+
+        for (Player player : players) {
+            player.getInventory().clear();
+            player.getInventory().setArmorContents(null);
+            player.getInventory().setItemInOffHand(null);
+        }
+
+        players.remove(forcedMafia);
+        Collections.shuffle(players);
+        Player police = players.get(0);
+
+        roles.clear();
+        roles.put(forcedMafia.getUniqueId(), "마피아");
+        roles.put(police.getUniqueId(), "경찰");
+
+        ItemStack mafiaWeapon = createMafiaWeapon();
+        forcedMafia.getInventory().addItem(mafiaWeapon);
+
+        for (Player player : players) {
+            if (player.getUniqueId().equals(police.getUniqueId())) {
+                continue;
+            }
+            roles.put(player.getUniqueId(), "시민");
+        }
+
+        for (Player player : GameManager.getPlayers()) {
+            String role = roles.getOrDefault(player.getUniqueId(), "시민");
+            player.sendMessage("당신의 역할은 " + role + "입니다.");
+        }
+
+        return true;
+    }
 }

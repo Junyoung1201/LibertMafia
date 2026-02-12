@@ -98,6 +98,23 @@ public final class Main extends JavaPlugin {
             return true;
         }
 
+        if (command.getName().equalsIgnoreCase("마지막")) {
+            boolean assigned = RoleManager.assignRolesWithForcedMafia("ANEJU");
+            if (!assigned) {
+                sender.sendMessage("플레이어가 2명 이상 필요하며, ANEJU 플레이어가 온라인이어야 합니다.");
+                return true;
+            }
+
+            if (GameManager.isDebugMode()) {
+                Bukkit.broadcastMessage("§e§l개발자 모드: §f실제 녹화할 떄는 꺼야함.");
+            }
+
+            WeaponListener.removeAllCorpseChests();
+            ClueManager.placeCluesOnce(sender instanceof org.bukkit.entity.Player ? (org.bukkit.entity.Player) sender : null);
+            GameManager.startLoop();
+            return true;
+        }
+
         if (command.getName().equalsIgnoreCase("디버그")) {
             boolean enabled = GameManager.toggleDebugMode();
             if (enabled) {
