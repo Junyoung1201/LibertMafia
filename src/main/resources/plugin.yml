@@ -19,9 +19,18 @@ commands:
   시체상자:
     description: 시체 상자를 생성하고 본인을 관전자로 전환합니다.
     usage: /시체상자
+  시체상자청소:
+    description: 모든 시체 상자를 삭제합니다.
+    usage: /시체상자청소
   단서숨기기:
     description: 단서 아이템 숨기기 로직을 테스트합니다.
     usage: /단서숨기기
+  단서아이템:
+    description: 단서 아이템 1개를 지급합니다.
+    usage: /단서아이템
+  낮시간위치:
+    description: 낮 시간 이동 위치를 저장합니다.
+    usage: /낮시간위치
   랜덤티피:
     description: 플레이 구역 내로 플레이어를 랜덤 텔레포트합니다.
     usage: /랜덤티피

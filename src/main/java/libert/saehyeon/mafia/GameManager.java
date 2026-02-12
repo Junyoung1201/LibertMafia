@@ -2,6 +2,7 @@ package libert.saehyeon.mafia;
 
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -30,6 +31,7 @@ public class GameManager {
     private static int nightSeconds = DEFAULT_NIGHT_SECONDS;
     private static int daySeconds = DEFAULT_DAY_SECONDS;
     private static boolean debugMode = false;
+    private static Location dayTeleportLocation;
 
     private enum Phase {
         NIGHT,
@@ -89,6 +91,14 @@ public class GameManager {
         return currentPhase == Phase.NIGHT;
     }
 
+    public static void setDayTeleportLocation(Location location) {
+        dayTeleportLocation = location;
+    }
+
+    public static Location getDayTeleportLocation() {
+        return dayTeleportLocation;
+    }
+
     private static void startPhase(Phase phase) {
         currentPhase = phase;
         switch (phase) {
@@ -100,11 +110,13 @@ public class GameManager {
                 MafiaManager.startNight();
                 RoleManager.giveMafiaWeaponsForNight();
                 ClueManager.teleportPlayersInRegion(GameManager.getPlayers(), 65, 79);
+                notifyNightRoleInstructions();
             }
             case DAY -> {
                 totalSeconds = daySeconds;
                 ensureBossBar(BarColor.BLUE);
                 updateBossBarTitle("낮 시간", true);
+                teleportPlayersToDayLocation();
                 closePoliceGuiForAll();
                 Bukkit.broadcastMessage(MafiaManager.consumeNightKillMessage());
             }
@@ -188,6 +200,15 @@ public class GameManager {
         }
     }
 
+    private static void teleportPlayersToDayLocation() {
+        if (dayTeleportLocation == null || dayTeleportLocation.getWorld() == null) {
+            return;
+        }
+        for (Player player : getPlayers()) {
+            player.teleport(dayTeleportLocation);
+        }
+    }
+
     private static String formatTime(int seconds) {
         int minutes = Math.max(0, seconds) / 60;
         int remainder = Math.max(0, seconds) % 60;
@@ -240,6 +261,22 @@ public class GameManager {
         for (Player player : Bukkit.getOnlinePlayers()) {
             if (PoliceManager.POLICE_GUI_TITLE.equals(player.getOpenInventory().getTitle())) {
                 player.closeInventory();
+            }
+        }
+    }
+
+    private static void notifyNightRoleInstructions() {
+        Location station = PoliceManager.getStationLocation();
+        String stationText = station == null
+                ? "미설정"
+                : station.getBlockX() + ", " + station.getBlockY() + ", " + station.getBlockZ();
+
+        for (Player player : getPlayers()) {
+            String role = RoleManager.getRole(player);
+            switch (role) {
+                case "마피아" -> player.sendMessage("당신은 무기로 §c밤 시간 동안 한 명을 사살§f할 수 있습니다.");
+                case "경찰" -> player.sendMessage("밤 시간 동안 §b경찰서에서 한 명의 직업을 조사§f할 수 있습니다. 경찰서 위치는 §b[" + stationText + "]§f입니다.");
+                default -> player.sendMessage("§6§l단서를 찾으세요! §f단서 2개를 찾아 인벤토리 제작 슬롯 또는 작업대에서 조합하여 플레이어를 죽일 수 있는 무기를 얻을 수 있습니다.");
             }
         }
     }

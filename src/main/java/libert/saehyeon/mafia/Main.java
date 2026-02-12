@@ -25,6 +25,7 @@ public final class Main extends JavaPlugin {
         PoliceManager.loadFromConfig();
         ClueManager.loadRegion();
         GameManager.setDebugMode(getConfig().getBoolean("debug.enabled", false));
+        loadDayTeleportLocation();
         getServer().getPluginManager().registerEvents(new VoteListener(), this);
         getServer().getPluginManager().registerEvents(new PoliceListener(), this);
         getServer().getPluginManager().registerEvents(new MafiaListener(), this);
@@ -52,6 +53,32 @@ public final class Main extends JavaPlugin {
         saveConfig();
     }
 
+    private void loadDayTeleportLocation() {
+        String worldName = getConfig().getString("day.teleport.world");
+        if (worldName == null || worldName.isBlank()) {
+            return;
+        }
+        World world = Bukkit.getWorld(worldName);
+        if (world == null) {
+            return;
+        }
+        int x = getConfig().getInt("day.teleport.x");
+        int y = getConfig().getInt("day.teleport.y");
+        int z = getConfig().getInt("day.teleport.z");
+        GameManager.setDayTeleportLocation(new Location(world, x, y, z));
+    }
+
+    private void saveDayTeleportLocation(Location location) {
+        if (location == null || location.getWorld() == null) {
+            return;
+        }
+        getConfig().set("day.teleport.world", location.getWorld().getName());
+        getConfig().set("day.teleport.x", location.getBlockX());
+        getConfig().set("day.teleport.y", location.getBlockY());
+        getConfig().set("day.teleport.z", location.getBlockZ());
+        saveConfig();
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (command.getName().equalsIgnoreCase("시작")) {
@@ -65,6 +92,7 @@ public final class Main extends JavaPlugin {
                 Bukkit.broadcastMessage("§e§l개발자 모드: §f실제 녹화할 떄는 꺼야함.");
             }
 
+            WeaponListener.removeAllCorpseChests();
             ClueManager.placeCluesOnce(sender instanceof org.bukkit.entity.Player ? (org.bukkit.entity.Player) sender : null);
             GameManager.startLoop();
             return true;
@@ -153,6 +181,12 @@ public final class Main extends JavaPlugin {
             return true;
         }
 
+        if (command.getName().equalsIgnoreCase("시체상자청소")) {
+            WeaponListener.removeAllCorpseChests();
+            sender.sendMessage("시체 상자 정리를 완료했습니다.");
+            return true;
+        }
+
         if (command.getName().equalsIgnoreCase("단서숨기기")) {
             if (sender instanceof Player player) {
                 boolean success = ClueManager.placeCluesOnce(player);
@@ -166,6 +200,28 @@ public final class Main extends JavaPlugin {
             if (!success) {
                 sender.sendMessage("단서 숨기기에 실패했습니다. 범위/상자 상태를 확인해주세요.");
             }
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("단서아이템")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("플레이어만 사용할 수 있습니다.");
+                return true;
+            }
+            player.getInventory().addItem(ClueManager.createClueItem());
+            player.sendMessage("단서 아이템 1개를 지급했습니다.");
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("낮시간위치")) {
+            if (!(sender instanceof Player player)) {
+                sender.sendMessage("플레이어만 사용할 수 있습니다.");
+                return true;
+            }
+            Location location = player.getLocation().getBlock().getLocation();
+            GameManager.setDayTeleportLocation(location);
+            saveDayTeleportLocation(location);
+            sender.sendMessage("낮 시간 이동 위치를 저장했습니다: " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ());
             return true;
         }
 

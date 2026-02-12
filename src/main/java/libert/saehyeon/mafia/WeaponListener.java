@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class WeaponListener implements Listener {
+    private static final String CORPSE_TEXT = "§c시체 상자";
 
     @EventHandler
     public void onPvpDamage(EntityDamageByEntityEvent event) {
@@ -112,7 +113,7 @@ public class WeaponListener implements Listener {
         Block block = chestLocation.getBlock();
         block.setType(Material.CHEST);
         Chest chest = (Chest) block.getState();
-        chest.setCustomName("§c시체 상자");
+        chest.setCustomName(CORPSE_TEXT);
         chest.update();
 
         List<ItemStack> leftovers = new ArrayList<>();
@@ -130,6 +131,24 @@ public class WeaponListener implements Listener {
 
         spawnCorpseMarker(chestLocation);
         return true;
+    }
+
+    public static void removeAllCorpseChests() {
+        for (var world : Bukkit.getWorlds()) {
+            for (TextDisplay display : world.getEntitiesByClass(TextDisplay.class)) {
+                if (!CORPSE_TEXT.equals(display.getText())) {
+                    continue;
+                }
+                Location chestLocation = display.getLocation().clone().subtract(0.5, 1.2, 0.5);
+                Block block = chestLocation.getBlock();
+                if (block.getType() == Material.CHEST && block.getState() instanceof Chest chest) {
+                    if (CORPSE_TEXT.equals(chest.getCustomName())) {
+                        block.setType(Material.AIR);
+                    }
+                }
+                display.remove();
+            }
+        }
     }
 
     private static boolean containsClue(List<ItemStack> items) {
@@ -167,7 +186,7 @@ public class WeaponListener implements Listener {
     private static void spawnCorpseMarker(Location chestLocation) {
         Location markerLoc = chestLocation.clone().add(0.5, 1.2, 0.5);
         TextDisplay display = chestLocation.getWorld().spawn(markerLoc, TextDisplay.class);
-        display.setText("§c시체 상자");
+        display.setText(CORPSE_TEXT);
         display.setBillboard(Display.Billboard.CENTER);
         display.setShadowed(true);
     }

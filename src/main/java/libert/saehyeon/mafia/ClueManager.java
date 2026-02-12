@@ -26,6 +26,7 @@ public class ClueManager {
     private static boolean cluesPlaced;
     private static NamespacedKey clueKey;
     private static NamespacedKey weaponKey;
+    private static final double NEARBY_PLAYER_RADIUS = 5.0;
 
     public static void initialize(JavaPlugin plugin) {
         ClueManager.plugin = plugin;
@@ -241,7 +242,7 @@ public class ClueManager {
         Random random = new Random();
 
         for (Player player : players) {
-            Location location = findRandomLocation(world, bounds, clampedMinY, clampedMaxY, random);
+            Location location = findRandomLocation(world, bounds, clampedMinY, clampedMaxY, random, NEARBY_PLAYER_RADIUS);
             if (location != null) {
                 player.teleport(location);
             }
@@ -250,23 +251,33 @@ public class ClueManager {
         return true;
     }
 
-    private static Location findRandomLocation(World world, RegionBounds bounds, int minY, int maxY, Random random) {
+    private static Location findRandomLocation(World world, RegionBounds bounds, int minY, int maxY, Random random, double nearbyRadius) {
         Location fallback = new Location(world,
                 bounds.getMinX() + 0.5,
                 minY,
                 bounds.getMinZ() + 0.5);
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 40; i++) {
             int x = random.nextInt(bounds.getMaxX() - bounds.getMinX() + 1) + bounds.getMinX();
             int y = random.nextInt(maxY - minY + 1) + minY;
             int z = random.nextInt(bounds.getMaxZ() - bounds.getMinZ() + 1) + bounds.getMinZ();
 
             if (isSafeSpawn(world, x, y, z)) {
-                return new Location(world, x + 0.5, y, z + 0.5);
+                Location candidate = new Location(world, x + 0.5, y, z + 0.5);
+                if (!isPlayerNearby(world, candidate, nearbyRadius)) {
+                    return candidate;
+                }
             }
         }
 
         return fallback;
+    }
+
+    private static boolean isPlayerNearby(World world, Location location, double radius) {
+        if (world == null || location == null) {
+            return false;
+        }
+        return !world.getNearbyPlayers(location, radius).isEmpty();
     }
 
     private static boolean isSafeSpawn(World world, int x, int y, int z) {
