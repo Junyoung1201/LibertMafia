@@ -136,9 +136,9 @@ public class ClueManager {
             }
         }
 
-        if (chests.size() < 2) {
+        if (chests.size() < 3) {
             if (notifier != null) {
-                notifier.sendMessage("범위 내 상자가 2개 이상 필요합니다.");
+                notifier.sendMessage("범위 내 상자가 3개 이상 필요합니다.");
             }
             return false;
         }
@@ -146,13 +146,15 @@ public class ClueManager {
         Collections.shuffle(chests, new Random());
         Block first = chests.get(0);
         Block second = chests.get(1);
+        Block third = chests.get(2);
 
         placeClue((Chest) first.getState());
         placeClue((Chest) second.getState());
+        placeClue((Chest) third.getState());
 
         cluesPlaced = true;
         if (notifier != null) {
-            notifier.sendMessage("단서 2개가 숨겨졌습니다.");
+            notifier.sendMessage("단서 3개가 숨겨졌습니다.");
         }
         return true;
     }
@@ -165,7 +167,7 @@ public class ClueManager {
         ItemStack clue = new ItemStack(Material.PAPER, 1);
         ItemMeta meta = clue.getItemMeta();
         meta.setDisplayName("§e단서");
-        meta.setLore(Arrays.asList("§f2개의 단서 아이템을 인벤토리의 제작 슬롯 또는 제작대에 두어 "));
+        meta.setLore(Arrays.asList("§f3개의 단서 아이템을 인벤토리의 제작 슬롯 또는 제작대에 두어 "));
         PersistentDataContainer container = meta.getPersistentDataContainer();
         container.set(clueKey, PersistentDataType.BYTE, (byte) 1);
         clue.setItemMeta(meta);
@@ -211,7 +213,7 @@ public class ClueManager {
                 clueCount++;
             }
         }
-        return itemCount == 2 && clueCount == 2;
+        return itemCount == 3 && clueCount == 3;
     }
 
     private static Location toBlockLocation(Location location) {

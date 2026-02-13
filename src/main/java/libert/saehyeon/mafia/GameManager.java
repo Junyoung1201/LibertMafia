@@ -276,7 +276,7 @@ public class GameManager {
             switch (role) {
                 case "마피아" -> player.sendMessage("당신은 무기로 §c밤 시간 동안 한 명을 사살§f할 수 있습니다.");
                 case "경찰" -> player.sendMessage("밤 시간 동안 §b경찰서에서 한 명의 직업을 조사§f할 수 있습니다. 경찰서 위치는 §b[" + stationText + "]§f입니다.");
-                default -> player.sendMessage("§6§l단서를 찾으세요! §f단서 2개를 찾아 인벤토리 제작 슬롯 또는 작업대에서 조합하여 플레이어를 죽일 수 있는 무기를 얻을 수 있습니다.");
+                default -> player.sendMessage("§6§l단서를 찾으세요! §f단서 3개를 찾아 인벤토리 제작 슬롯 또는 작업대에서 조합하여 플레이어를 죽일 수 있는 무기를 얻을 수 있습니다.");
             }
         }
     }
