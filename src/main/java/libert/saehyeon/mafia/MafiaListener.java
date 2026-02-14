@@ -22,7 +22,7 @@ public class MafiaListener implements Listener {
             return;
         }
 
-        if (!"마피아".equals(RoleManager.getRole(killer))) {
+        if (!"잭 더 리퍼".equals(RoleManager.getRole(killer))) {
             return;
         }
 
@@ -30,13 +30,13 @@ public class MafiaListener implements Listener {
             return;
         }
 
-        if ("마피아".equals(RoleManager.getRole(victim))) {
+        if ("잭 더 리퍼".equals(RoleManager.getRole(victim))) {
             return;
         }
 
         MafiaManager.recordNightKill(victim);
         RoleManager.removeMafiaWeapons(killer);
-        killer.sendMessage("마피아는 밤에 한 명 씩만 사살할 수 있습니다.");
+        killer.sendMessage("잭 더 리퍼는 밤에 한 명 씩만 사살할 수 있습니다.");
 
         JavaPlugin plugin = JavaPlugin.getProvidingPlugin(MafiaListener.class);
         Bukkit.getScheduler().runTask(plugin, () -> victim.setGameMode(GameMode.SPECTATOR));

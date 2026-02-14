@@ -130,7 +130,7 @@ public final class Main extends JavaPlugin {
         if (command.getName().equalsIgnoreCase("역할")) {
             if (args.length < 2) {
                 sender.sendMessage("사용법: /역할 [플레이어] [역할]");
-                sender.sendMessage("가능한 역할: 마피아, 경찰, 시민");
+                sender.sendMessage("가능한 역할: 잭 더 리퍼, 경찰, 시민");
                 return true;
             }
 
@@ -144,7 +144,7 @@ public final class Main extends JavaPlugin {
 
             boolean success = RoleManager.setRole(target, roleName);
             if (!success) {
-                sender.sendMessage("알 수 없는 역할입니다. 가능한 역할: 마피아, 경찰, 시민");
+                sender.sendMessage("알 수 없는 역할입니다. 가능한 역할: 잭 더 리퍼, 경찰, 시민");
                 return true;
             }
 

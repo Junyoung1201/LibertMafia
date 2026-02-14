@@ -224,7 +224,7 @@ public class GameManager {
     public static boolean checkCitizenWin() {
         int mafia = RoleManager.countAliveMafia();
         if (mafia == 0) {
-            announceWin("§a§l시민 승리!", "마피아가 모두 처형되었습니다.");
+            announceWin("§a§l시민 승리!", "잭 더 리퍼가 모두 처형되었습니다.");
             stopLoop();
             return true;
         }
@@ -243,7 +243,7 @@ public class GameManager {
         int mafia = RoleManager.countAliveMafia();
         int citizens = RoleManager.countAliveCitizens();
         if (mafia > 0 && mafia >= citizens) {
-            announceWin("§c§l마피아 승리!", "시민이 모두 처치되었습니다.");
+            announceWin("§c§l잭 더 리퍼 승리!", "시민이 모두 처치되었습니다.");
             stopLoop();
             return true;
         }
@@ -274,7 +274,7 @@ public class GameManager {
         for (Player player : getPlayers()) {
             String role = RoleManager.getRole(player);
             switch (role) {
-                case "마피아" -> player.sendMessage("당신은 무기로 §c밤 시간 동안 한 명을 사살§f할 수 있습니다.");
+                case "잭 더 리퍼" -> player.sendMessage("당신은 무기로 §c밤 시간 동안 한 명을 사살§f할 수 있습니다.");
                 case "경찰" -> player.sendMessage("밤 시간 동안 §b경찰서에서 한 명의 직업을 조사§f할 수 있습니다. 경찰서 위치는 §b[" + stationText + "]§f입니다.");
                 default -> player.sendMessage("§6§l단서를 찾으세요! §f단서 3개를 찾아 인벤토리 제작 슬롯 또는 작업대에서 조합하여 플레이어를 죽일 수 있는 무기를 얻을 수 있습니다.");
             }

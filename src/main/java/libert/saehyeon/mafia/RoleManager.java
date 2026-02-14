@@ -42,7 +42,7 @@ public class RoleManager {
         Player police = players.get(1);
 
         roles.clear();
-        roles.put(mafia.getUniqueId(), "마피아");
+        roles.put(mafia.getUniqueId(), "잭 더 리퍼");
         roles.put(police.getUniqueId(), "경찰");
 
         ItemStack mafiaWeapon = createMafiaWeapon();
@@ -67,7 +67,7 @@ public class RoleManager {
     public static int countAliveMafia() {
         int count = 0;
         for (Player player : GameManager.getPlayers()) {
-            if ("마피아".equals(getRole(player))) {
+            if ("잭 더 리퍼".equals(getRole(player))) {
                 count++;
             }
         }
@@ -77,7 +77,7 @@ public class RoleManager {
     public static int countAliveCitizens() {
         int count = 0;
         for (Player player : GameManager.getPlayers()) {
-            if (!"마피아".equals(getRole(player))) {
+            if (!"잭 더 리퍼".equals(getRole(player))) {
                 count++;
             }
         }
@@ -100,7 +100,7 @@ public class RoleManager {
         }
         String trimmed = roleName.trim();
         return switch (trimmed) {
-            case "마피아", "mafia" -> "마피아";
+            case "잭 더 리퍼", "잭더리퍼", "jack", "jack the ripper", "마피아", "mafia" -> "잭 더 리퍼";
             case "경찰", "police" -> "경찰";
             case "시민", "citizen" -> "시민";
             default -> null;
@@ -109,7 +109,7 @@ public class RoleManager {
 
     public static void giveMafiaWeaponsForNight() {
         for (Player player : GameManager.getPlayers()) {
-            if ("마피아".equals(getRole(player))) {
+            if ("잭 더 리퍼".equals(getRole(player))) {
                 giveMafiaWeapon(player);
             }
         }
@@ -139,7 +139,7 @@ public class RoleManager {
     public static ItemStack createMafiaWeapon() {
         ItemStack mafiaWeapon = new ItemStack(Material.DIAMOND_SWORD, 1);
         ItemMeta meta = mafiaWeapon.getItemMeta();
-        meta.setDisplayName("§c마피아의 흉기");
+        meta.setDisplayName("§c잭 더 리퍼의 흉기");
         meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
         PersistentDataContainer container = meta.getPersistentDataContainer();
         container.set(mafiaWeaponKey, PersistentDataType.BYTE, (byte) 1);
@@ -186,7 +186,7 @@ public class RoleManager {
         Player police = players.get(0);
 
         roles.clear();
-        roles.put(forcedMafia.getUniqueId(), "마피아");
+        roles.put(forcedMafia.getUniqueId(), "잭 더 리퍼");
         roles.put(police.getUniqueId(), "경찰");
 
         ItemStack mafiaWeapon = createMafiaWeapon();

@@ -37,7 +37,7 @@ public class WeaponListener implements Listener {
             return;
         }
 
-        if ("마피아".equals(RoleManager.getRole(attacker))
+        if ("잭 더 리퍼".equals(RoleManager.getRole(attacker))
                 && !RoleManager.isMafiaWeapon(attacker.getInventory().getItemInMainHand())) {
             event.setCancelled(true);
             return;
