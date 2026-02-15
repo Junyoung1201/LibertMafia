@@ -7,7 +7,9 @@ import libert.saehyeon.mafia.elimiator.Eliminator;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
@@ -62,9 +64,14 @@ public class VoteManager {
     }
 
     public static void recordVote(Player voter, UUID target) {
+        if(target == null) {
+            votes.put(voter.getUniqueId(), null);
+        }
+
         if (!eligibleVoters.contains(voter.getUniqueId())) {
             return;
         }
+
         votes.put(voter.getUniqueId(), target);
     }
 
@@ -77,6 +84,7 @@ public class VoteManager {
                 .collect(Collectors.toList());
 
         Optional<UUID> result = resolveTopVoted(votes, candidateIds);
+
         if (result.isEmpty()) {
             Bukkit.broadcastMessage("투표 결과가 없습니다.");
             return;
@@ -141,14 +149,12 @@ public class VoteManager {
         if (!voteActive || hasVoted(player)) {
             return;
         }
+
         if (Eliminator.isEliminated(player)) {
             return;
         }
-        List<Player> players = GameManager.getPlayers();
-        if (players.isEmpty()) {
-            return;
-        }
-        player.openInventory(buildVoteInventory(player, players));
+
+        player.openInventory(buildVoteInventory());
     }
 
     public static void scheduleReopen(Player player) {
@@ -162,8 +168,9 @@ public class VoteManager {
 
     private static void openVoteGuiForAll() {
         List<Player> players = GameManager.getPlayers();
+
         for (Player player : players) {
-            player.openInventory(buildVoteInventory(player, players));
+            player.openInventory(buildVoteInventory());
         }
     }
 
@@ -176,7 +183,8 @@ public class VoteManager {
         }
     }
 
-    private static Inventory buildVoteInventory(Player viewer, List<Player> players) {
+    private static Inventory buildVoteInventory() {
+        List<Player> players = GameManager.getPlayers();
         int size = Math.min(MAX_GUI_SIZE, Math.max(9, ((players.size() - 1) / 9 + 1) * 9));
         Inventory inventory = Bukkit.createInventory(null, size, VOTE_TITLE);
 
@@ -195,6 +203,15 @@ public class VoteManager {
             head.setItemMeta(meta);
             inventory.addItem(head);
         }
+
+        // 투표 건너뛰기 만들기
+        ItemStack skipVote = new ItemStack(Material.BARRIER, 1);
+        ItemMeta skipVoteMeta = skipVote.getItemMeta();
+        skipVoteMeta.setDisplayName("§c투표 건너뛰기");
+        skipVoteMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+        skipVote.setItemMeta(skipVoteMeta);
+
+        inventory.setItem(size-1,skipVote);
 
         return inventory;
     }

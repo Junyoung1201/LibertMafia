@@ -35,23 +35,32 @@ public class VoteListener implements Listener {
             return;
         }
 
+        Player voter = (Player) event.getWhoClicked();
         ItemMeta meta = clicked.getItemMeta();
+
+        if(meta.hasDisplayName() && meta.getDisplayName().equals("§c투표 건너뛰기")) {
+            VoteManager.recordVote(voter, null);
+            voter.sendMessage("기권표를 제출했습니다.");
+            voter.playSound(voter.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, SoundCategory.MASTER,0.7f,1);
+            voter.closeInventory();
+            return;
+        }
+
         PersistentDataContainer container = meta.getPersistentDataContainer();
         String targetId = container.get(VoteManager.getVoteKey(), PersistentDataType.STRING);
+
         if (targetId == null) {
             return;
         }
 
-        Player voter = (Player) event.getWhoClicked();
         UUID targetUuid = UUID.fromString(targetId);
-//        if (targetUuid.equals(voter.getUniqueId())) {
-//            return;
-//        }
+
         VoteManager.recordVote(voter, targetUuid);
 
         String targetName = Bukkit.getPlayer(targetUuid) != null
                 ? Bukkit.getPlayer(targetUuid).getName()
                 : targetUuid.toString();
+
         voter.sendMessage("§7"+targetName+"§f(을)를 지목했습니다.");
         voter.playSound(voter.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, SoundCategory.MASTER,0.7f,1);
         voter.closeInventory();

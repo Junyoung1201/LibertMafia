@@ -67,6 +67,8 @@ public class WeaponListener implements Listener {
             return;
         }
 
+        event.getDrops().clear();
+
         Eliminator.eliminate(victim);
         killer.sendMessage("§7" + victim.getName() + "§f(을)를 처치했습니다.");
 
