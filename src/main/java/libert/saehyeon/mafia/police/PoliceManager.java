@@ -1,5 +1,7 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.police;
 
+import libert.saehyeon.mafia.GameManager;
+import libert.saehyeon.mafia.Main;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -26,17 +28,15 @@ public class PoliceManager {
     public static final String POLICE_GUI_TITLE = "경찰서";
 
     private static final int MAX_GUI_SIZE = 54;
-    private static JavaPlugin plugin;
     private static NamespacedKey targetKey;
     private static Location stationLocation;
-    private static File configFile;
+    private static final File configFile = new File(Main.ins.getDataFolder(), "police.yml");
+    private static final YamlConfiguration config = new YamlConfiguration();
 
     private static final Set<UUID> investigatedThisNight = new HashSet<>();
 
-    public static void initialize(JavaPlugin plugin) {
-        PoliceManager.plugin = plugin;
-        targetKey = new NamespacedKey(plugin, "police_target");
-        configFile = new File(plugin.getDataFolder(), "police.yml");
+    public static void init() {
+        targetKey = new NamespacedKey(Main.ins, "police_target");
     }
 
     public static void loadFromConfig() {
@@ -55,7 +55,7 @@ public class PoliceManager {
             return;
         }
 
-        World world = plugin.getServer().getWorld(worldName);
+        World world = Main.ins.getServer().getWorld(worldName);
         if (world == null) {
             stationLocation = null;
             return;
@@ -68,20 +68,6 @@ public class PoliceManager {
     }
 
     public static void saveToConfig() {
-        if (configFile == null) {
-            return;
-        }
-
-        YamlConfiguration config = new YamlConfiguration();
-        if (stationLocation == null || stationLocation.getWorld() == null) {
-            try {
-                config.save(configFile);
-            } catch (IOException ignored) {
-                // No-op: best-effort save
-            }
-            return;
-        }
-
         config.set("police.station.world", stationLocation.getWorld().getName());
         config.set("police.station.x", stationLocation.getBlockX());
         config.set("police.station.y", stationLocation.getBlockY());

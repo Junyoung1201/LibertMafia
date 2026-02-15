@@ -1,4 +1,4 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.region;
 
 public class RegionBounds {
     private final int minX;

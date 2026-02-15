@@ -1,4 +1,4 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.clue;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,8 +13,8 @@ public class ClueCraftListener implements Listener {
     public void onPrepareCraft(PrepareItemCraftEvent event) {
         CraftingInventory inventory = event.getInventory();
         ItemStack[] matrix = inventory.getMatrix();
-        if (ClueManager.isValidClueRecipe(matrix)) {
-            inventory.setResult(ClueManager.createWeaponItem());
+        if (Clue.isValidClueRecipe(matrix)) {
+            inventory.setResult(Clue.createWeaponItem());
         } else {
             inventory.setResult(null);
         }
@@ -26,11 +26,11 @@ public class ClueCraftListener implements Listener {
             return;
         }
         ItemStack result = event.getCurrentItem();
-        if (!ClueManager.isWeaponItem(result)) {
+        if (!Clue.isWeaponItem(result)) {
             return;
         }
         ItemStack[] matrix = ((CraftingInventory) event.getInventory()).getMatrix();
-        if (!ClueManager.isValidClueRecipe(matrix)) {
+        if (!Clue.isValidClueRecipe(matrix)) {
             event.setCancelled(true);
         }
     }

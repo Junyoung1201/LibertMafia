@@ -1,4 +1,4 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.vote;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -44,9 +44,9 @@ public class VoteListener implements Listener {
 
         Player voter = (Player) event.getWhoClicked();
         UUID targetUuid = UUID.fromString(targetId);
-        if (targetUuid.equals(voter.getUniqueId())) {
-            return;
-        }
+//        if (targetUuid.equals(voter.getUniqueId())) {
+//            return;
+//        }
         VoteManager.recordVote(voter, targetUuid);
 
         String targetName = Bukkit.getPlayer(targetUuid) != null

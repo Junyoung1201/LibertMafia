@@ -1,5 +1,11 @@
 package libert.saehyeon.mafia;
 
+import libert.saehyeon.mafia.elimiator.Eliminator;
+import libert.saehyeon.mafia.mafia.Mafia;
+import libert.saehyeon.mafia.police.PoliceManager;
+import libert.saehyeon.mafia.region.RegionManager;
+import libert.saehyeon.mafia.vote.SkipVoteManager;
+import libert.saehyeon.mafia.vote.VoteManager;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -7,7 +13,6 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import org.bukkit.Sound;
@@ -22,7 +27,6 @@ public class GameManager {
     private static final int DEBUG_DAY_SECONDS = 15;
     private static final int VOTE_SECONDS = 60;
 
-    private static JavaPlugin plugin;
     private static BossBar bossBar;
     private static BukkitTask loopTask;
     private static Phase currentPhase;
@@ -39,14 +43,10 @@ public class GameManager {
         VOTE
     }
 
-    public static void initialize(JavaPlugin plugin) {
-        GameManager.plugin = plugin;
-    }
-
     public static void startLoop() {
         stopLoop();
         startPhase(Phase.NIGHT);
-        loopTask = Bukkit.getScheduler().runTaskTimer(plugin, GameManager::tick, 0L, 20L);
+        loopTask = Bukkit.getScheduler().runTaskTimer(Main.ins, GameManager::tick, 0L, 20L);
     }
 
     public static void stopLoop() {
@@ -91,6 +91,22 @@ public class GameManager {
         return currentPhase == Phase.NIGHT;
     }
 
+    public static boolean isDay() {
+        return currentPhase == Phase.DAY;
+    }
+
+    public static boolean isSkippablePhase() {
+        return currentPhase == Phase.NIGHT || currentPhase == Phase.DAY;
+    }
+
+    public static boolean skipCurrentPhase() {
+        if (!isSkippablePhase()) {
+            return false;
+        }
+        startPhase(nextPhase(currentPhase));
+        return true;
+    }
+
     public static void setDayTeleportLocation(Location location) {
         dayTeleportLocation = location;
     }
@@ -100,6 +116,7 @@ public class GameManager {
     }
 
     private static void startPhase(Phase phase) {
+        SkipVoteManager.cancelIfActive();
         currentPhase = phase;
         switch (phase) {
             case NIGHT -> {
@@ -107,9 +124,9 @@ public class GameManager {
                 ensureBossBar(BarColor.PURPLE);
                 updateBossBarTitle("밤 시간", true);
                 PoliceManager.resetNightInvestigations();
-                MafiaManager.startNight();
+                Mafia.startNight();
                 RoleManager.giveMafiaWeaponsForNight();
-                ClueManager.teleportPlayersInRegion(GameManager.getPlayers(), 65, 79);
+                RegionManager.teleportPlayersInRegion(GameManager.getPlayers(), 65, 79);
                 notifyNightRoleInstructions();
             }
             case DAY -> {
@@ -118,7 +135,7 @@ public class GameManager {
                 updateBossBarTitle("낮 시간", true);
                 teleportPlayersToDayLocation();
                 closePoliceGuiForAll();
-                Bukkit.broadcastMessage(MafiaManager.consumeNightKillMessage());
+                Bukkit.broadcastMessage(Mafia.getNightKillMessage());
             }
             case VOTE -> {
                 totalSeconds = 0;
@@ -217,7 +234,7 @@ public class GameManager {
 
     public static List<Player> getPlayers() {
         return Bukkit.getOnlinePlayers().stream()
-                .filter(player -> player.getGameMode() != GameMode.SPECTATOR)
+                .filter(player -> !player.getGameMode().equals(GameMode.SPECTATOR) && !Eliminator.isEliminated(player))
                 .collect(Collectors.toList());
     }
 

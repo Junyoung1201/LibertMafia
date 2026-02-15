@@ -1,5 +1,9 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.vote;
 
+import libert.saehyeon.mafia.GameManager;
+import libert.saehyeon.mafia.Main;
+import libert.saehyeon.mafia.clue.Clue;
+import libert.saehyeon.mafia.elimiator.Eliminator;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -7,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,15 +25,13 @@ public class VoteManager {
     public static final String VOTE_TITLE = "투표";
 
     private static final int MAX_GUI_SIZE = 54;
-    private static JavaPlugin plugin;
     private static NamespacedKey voteKey;
     private static final Map<UUID, UUID> votes = new HashMap<>();
     private static final Set<UUID> eligibleVoters = new HashSet<>();
     private static boolean voteActive = false;
 
-    public static void initialize(JavaPlugin plugin) {
-        VoteManager.plugin = plugin;
-        voteKey = new NamespacedKey(plugin, "vote_target");
+    public static void init() {
+        voteKey = new NamespacedKey(Main.ins, "vote_target");
     }
 
     public static NamespacedKey getVoteKey() {
@@ -87,7 +88,17 @@ public class VoteManager {
             return;
         }
 
-        target.setGameMode(org.bukkit.GameMode.SPECTATOR);
+        int clueCount = Clue.countClueItems(target);
+        if (clueCount > 0) {
+            boolean hidden = Clue.hideClues(clueCount, target);
+            if (hidden) {
+                Clue.removeClueItems(target);
+            } else {
+                target.sendMessage("단서를 숨기지 못했습니다. 게임 범위와 상자 상태를 확인해주세요.");
+            }
+        }
+
+        Eliminator.eliminate(target);
         Bukkit.broadcastMessage("§7"+target.getName() + "§f(이)가 투표로 처형되었습니다.");
 
         GameManager.checkCitizenWin();
@@ -130,7 +141,7 @@ public class VoteManager {
         if (!voteActive || hasVoted(player)) {
             return;
         }
-        if (player.getGameMode() == org.bukkit.GameMode.SPECTATOR) {
+        if (Eliminator.isEliminated(player)) {
             return;
         }
         List<Player> players = GameManager.getPlayers();
@@ -146,7 +157,7 @@ public class VoteManager {
         }
         player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER,0.7f,1);
         player.sendMessage("§c한 명을 지목해야 합니다!");
-        plugin.getServer().getScheduler().runTaskLater(plugin, () -> reopenVoteGui(player), 2L);
+        Bukkit.getScheduler().runTaskLater(Main.ins, () -> reopenVoteGui(player), 2L);
     }
 
     private static void openVoteGuiForAll() {
@@ -170,9 +181,9 @@ public class VoteManager {
         Inventory inventory = Bukkit.createInventory(null, size, VOTE_TITLE);
 
         for (Player player : players) {
-            if (player.getUniqueId().equals(viewer.getUniqueId())) {
-                continue;
-            }
+//            if (player.getUniqueId().equals(viewer.getUniqueId())) {
+//                continue;
+//            }
             ItemStack head = new ItemStack(Material.PLAYER_HEAD);
             SkullMeta meta = (SkullMeta) head.getItemMeta();
             meta.setOwningPlayer(player);

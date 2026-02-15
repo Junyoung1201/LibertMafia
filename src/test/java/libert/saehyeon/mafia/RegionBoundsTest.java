@@ -1,5 +1,6 @@
 package libert.saehyeon.mafia;
 
+import libert.saehyeon.mafia.region.RegionBounds;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

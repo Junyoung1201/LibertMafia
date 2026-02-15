@@ -1,14 +1,9 @@
 package libert.saehyeon.mafia;
 
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
+import libert.saehyeon.mafia.elimiator.Eliminator;
+import libert.saehyeon.mafia.mafia.Mafia;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.persistence.PersistentDataContainer;
-import org.bukkit.persistence.PersistentDataType;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,13 +14,9 @@ import java.util.UUID;
 
 public class RoleManager {
     private static final Map<UUID, String> roles = new HashMap<>();
-    private static NamespacedKey mafiaWeaponKey;
-
-    public static void initialize(JavaPlugin plugin) {
-        mafiaWeaponKey = new NamespacedKey(plugin, "mafia_weapon");
-    }
 
     public static boolean assignRoles() {
+        Eliminator.resetEliminatedTeam();
         List<Player> players = new ArrayList<>(GameManager.getPlayers());
         if (players.size() < 2) {
             return false;
@@ -45,7 +36,7 @@ public class RoleManager {
         roles.put(mafia.getUniqueId(), "잭 더 리퍼");
         roles.put(police.getUniqueId(), "경찰");
 
-        ItemStack mafiaWeapon = createMafiaWeapon();
+        ItemStack mafiaWeapon = Mafia.createWeaponItem();
         mafia.getInventory().addItem(mafiaWeapon);
 
         for (int i = 2; i < players.size(); i++) {
@@ -64,10 +55,14 @@ public class RoleManager {
         return roles.getOrDefault(player.getUniqueId(), "시민");
     }
 
+    public static boolean isJackTheRipper(Player player) {
+        return "잭 더 리퍼".equals(getRole(player));
+    }
+
     public static int countAliveMafia() {
         int count = 0;
         for (Player player : GameManager.getPlayers()) {
-            if ("잭 더 리퍼".equals(getRole(player))) {
+            if (isJackTheRipper(player)) {
                 count++;
             }
         }
@@ -77,7 +72,7 @@ public class RoleManager {
     public static int countAliveCitizens() {
         int count = 0;
         for (Player player : GameManager.getPlayers()) {
-            if (!"잭 더 리퍼".equals(getRole(player))) {
+            if (!isJackTheRipper(player)) {
                 count++;
             }
         }
@@ -109,7 +104,7 @@ public class RoleManager {
 
     public static void giveMafiaWeaponsForNight() {
         for (Player player : GameManager.getPlayers()) {
-            if ("잭 더 리퍼".equals(getRole(player))) {
+            if (isJackTheRipper(player)) {
                 giveMafiaWeapon(player);
             }
         }
@@ -117,7 +112,7 @@ public class RoleManager {
 
     public static void giveMafiaWeapon(Player player) {
         removeMafiaWeapons(player);
-        player.getInventory().addItem(createMafiaWeapon());
+        player.getInventory().addItem(Mafia.createWeaponItem());
     }
 
     public static void removeMafiaWeapons(Player player) {
@@ -126,36 +121,18 @@ public class RoleManager {
         }
         ItemStack[] contents = player.getInventory().getContents();
         for (int i = 0; i < contents.length; i++) {
-            if (isMafiaWeapon(contents[i])) {
+            if (Mafia.isWeaponItem(contents[i])) {
                 contents[i] = null;
             }
         }
         player.getInventory().setContents(contents);
-        if (isMafiaWeapon(player.getInventory().getItemInOffHand())) {
+        if (Mafia.isWeaponItem(player.getInventory().getItemInOffHand())) {
             player.getInventory().setItemInOffHand(null);
         }
     }
 
-    public static ItemStack createMafiaWeapon() {
-        ItemStack mafiaWeapon = new ItemStack(Material.DIAMOND_SWORD, 1);
-        ItemMeta meta = mafiaWeapon.getItemMeta();
-        meta.setDisplayName("§c잭 더 리퍼의 흉기");
-        meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
-        PersistentDataContainer container = meta.getPersistentDataContainer();
-        container.set(mafiaWeaponKey, PersistentDataType.BYTE, (byte) 1);
-        mafiaWeapon.setItemMeta(meta);
-        return mafiaWeapon;
-    }
-
-    public static boolean isMafiaWeapon(ItemStack item) {
-        if (item == null || item.getType() != Material.DIAMOND_SWORD || !item.hasItemMeta()) {
-            return false;
-        }
-        PersistentDataContainer container = item.getItemMeta().getPersistentDataContainer();
-        return container.has(mafiaWeaponKey, PersistentDataType.BYTE);
-    }
-
     public static boolean assignRolesWithForcedMafia(String playerName) {
+        Eliminator.resetEliminatedTeam();
         List<Player> players = new ArrayList<>(GameManager.getPlayers());
         if (players.size() < 2) {
             return false;
@@ -189,7 +166,7 @@ public class RoleManager {
         roles.put(forcedMafia.getUniqueId(), "잭 더 리퍼");
         roles.put(police.getUniqueId(), "경찰");
 
-        ItemStack mafiaWeapon = createMafiaWeapon();
+        ItemStack mafiaWeapon = Mafia.createWeaponItem();
         forcedMafia.getInventory().addItem(mafiaWeapon);
 
         for (Player player : players) {

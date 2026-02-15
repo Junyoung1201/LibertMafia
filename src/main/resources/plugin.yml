@@ -16,6 +16,12 @@ commands:
   역할:
     description: 플레이어의 역할을 설정합니다.
     usage: /역할 [플레이어] [역할]
+  스킵:
+    description: 스킵 투표를 시작합니다.
+    usage: /스킵
+  skip:
+    description: 스킵 투표에 찬성/반대로 투표합니다.
+    usage: /skip [찬성|반대]
   시체상자:
     description: 시체 상자를 생성하고 본인을 관전자로 전환합니다.
     usage: /시체상자
@@ -28,9 +34,13 @@ commands:
   단서아이템:
     description: 단서 아이템 1개를 지급합니다.
     usage: /단서아이템
+  단서위치:
   낮시간위치:
     description: 낮 시간 이동 위치를 저장합니다.
     usage: /낮시간위치
   랜덤티피:
     description: 플레이 구역 내로 플레이어를 랜덤 텔레포트합니다.
     usage: /랜덤티피
+  마지막:
+  투명:
+  겜모:

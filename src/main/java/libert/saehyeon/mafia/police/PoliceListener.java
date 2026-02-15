@@ -1,5 +1,7 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.police;
 
+import libert.saehyeon.mafia.GameManager;
+import libert.saehyeon.mafia.RoleManager;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

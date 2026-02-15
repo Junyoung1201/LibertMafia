@@ -1,4 +1,4 @@
-package libert.saehyeon.mafia;
+package libert.saehyeon.mafia.citizen;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
