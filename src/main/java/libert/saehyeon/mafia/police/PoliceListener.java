@@ -38,14 +38,37 @@ public class PoliceListener implements Listener {
         }
 
         if (player.getGameMode() == GameMode.CREATIVE && item != null && item.getType() == Material.NAME_TAG) {
-            PoliceManager.setStationLocation(clicked.getLocation());
-            PoliceManager.saveToConfig();
-            player.sendMessage("경찰서 위치가 지정되었습니다: "
-                    + clicked.getX() + ", " + clicked.getY() + ", " + clicked.getZ());
+            if (player.isSneaking()) {
+                boolean removed = PoliceManager.removeStationCandidate(clicked.getLocation());
+                if (removed) {
+                    PoliceManager.saveToConfig();
+                    player.sendMessage("경찰서 후보지가 제거되었습니다: "
+                            + clicked.getX() + ", " + clicked.getY() + ", " + clicked.getZ());
+                } else {
+                    player.sendMessage("해당 위치는 등록된 후보지가 아닙니다.");
+                }
+                return;
+            }
+
+            boolean added = PoliceManager.addStationCandidate(clicked.getLocation());
+            if (added) {
+                PoliceManager.saveToConfig();
+                player.sendMessage("경찰서 후보지가 추가되었습니다: "
+                        + clicked.getX() + ", " + clicked.getY() + ", " + clicked.getZ());
+            } else {
+                player.sendMessage("이미 등록된 경찰서 후보지입니다.");
+            }
             return;
         }
 
-        if (!PoliceManager.isStationBlock(clicked)) {
+        // 경찰서 후보지가 아님
+        if (!PoliceManager.isStationCandidate(clicked)) {
+            return;
+        }
+
+        // 경찰서 후보지인데 활성 경찰서가 아님
+        else if(!PoliceManager.isStationBlock(clicked) && PoliceManager.isStationCandidate(clicked)) {
+            player.sendMessage("§c이 경찰서는 현재 닫혀있습니다.");
             return;
         }
 

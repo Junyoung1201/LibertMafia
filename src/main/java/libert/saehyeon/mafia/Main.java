@@ -143,6 +143,11 @@ public final class Main extends JavaPlugin {
                 return true;
             }
 
+            boolean activated = PoliceManager.activateRandomStation();
+            if (!activated) {
+                sender.sendMessage("경찰서 후보지가 없어 활성화할 수 없습니다.");
+            }
+
             if(GameManager.isDebugMode()) {
                 Bukkit.broadcastMessage("§e§l개발자 모드: §f실제 녹화할 떄는 꺼야함.");
             }
@@ -177,6 +182,11 @@ public final class Main extends JavaPlugin {
                 return true;
             }
 
+            boolean activated = PoliceManager.activateRandomStation();
+            if (!activated) {
+                sender.sendMessage("경찰서 후보지가 없어 활성화할 수 없습니다.");
+            }
+
             if (GameManager.isDebugMode()) {
                 Bukkit.broadcastMessage("§e§l개발자 모드: §f실제 녹화할 떄는 꺼야함.");
             }
@@ -203,8 +213,13 @@ public final class Main extends JavaPlugin {
             return true;
         }
 
+        if(command.getName().equals("강제스킵")) {
+            SkipVoteManager.startSkipVote(sender, true);
+            return true;
+        }
+
         if (command.getName().equalsIgnoreCase("스킵")) {
-            SkipVoteManager.startSkipVote(sender);
+            SkipVoteManager.startSkipVote(sender, false);
             return true;
         }
 
@@ -389,6 +404,34 @@ public final class Main extends JavaPlugin {
             boolean success = RegionManager.teleportPlayersInRegion(GameManager.getPlayers(), 65, 68);
             if (!success) {
                 sender.sendMessage("랜덤 티피에 실패했습니다. 플레이 구역을 먼저 설정하세요.");
+            }
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("경찰서위치")) {
+            Location station = PoliceManager.getStationLocation();
+            if (station == null || station.getWorld() == null) {
+                sender.sendMessage("활성화된 경찰서가 없습니다.");
+                return true;
+            }
+            sender.sendMessage("활성 경찰서: " + station.getWorld().getName() + " "
+                    + station.getBlockX() + ", " + station.getBlockY() + ", " + station.getBlockZ());
+            return true;
+        }
+
+        if (command.getName().equalsIgnoreCase("경찰서후보지")) {
+            List<Location> stations = PoliceManager.getStationCandidates();
+            if (stations.isEmpty()) {
+                sender.sendMessage("등록된 경찰서 후보지가 없습니다.");
+                return true;
+            }
+            sender.sendMessage("경찰서 후보지 목록:");
+            for (Location station : stations) {
+                if (station == null || station.getWorld() == null) {
+                    continue;
+                }
+                sender.sendMessage("- " + station.getWorld().getName() + ": "
+                        + station.getBlockX() + ", " + station.getBlockY() + ", " + station.getBlockZ());
             }
             return true;
         }

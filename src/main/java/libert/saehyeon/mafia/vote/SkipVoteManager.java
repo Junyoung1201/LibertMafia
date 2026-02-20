@@ -29,12 +29,12 @@ public class SkipVoteManager {
         return voteActive;
     }
 
-    public static void startSkipVote(CommandSender sender) {
+    public static void startSkipVote(CommandSender sender, boolean force) {
         if (voteActive) {
             sender.sendMessage("이미 스킵 투표가 진행 중입니다.");
             return;
         }
-        if (!GameManager.isSkippablePhase()) {
+        if (!GameManager.isSkippablePhase() && !force) {
             sender.sendMessage("§c현재는 스킵 투표를 진행할 수 없습니다.");
             return;
         }
