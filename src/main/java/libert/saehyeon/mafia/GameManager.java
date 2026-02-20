@@ -36,6 +36,7 @@ public class GameManager {
     private static int daySeconds = DEFAULT_DAY_SECONDS;
     private static boolean debugMode = false;
     private static Location dayTeleportLocation;
+    private static int nightCount;
 
     private enum Phase {
         NIGHT,
@@ -45,6 +46,7 @@ public class GameManager {
 
     public static void startLoop() {
         stopLoop();
+        nightCount = 0;
         startPhase(Phase.NIGHT);
         loopTask = Bukkit.getScheduler().runTaskTimer(Main.ins, GameManager::tick, 0L, 20L);
     }
@@ -91,6 +93,10 @@ public class GameManager {
         return currentPhase == Phase.NIGHT;
     }
 
+    public static boolean isFirstNight() {
+        return currentPhase == Phase.NIGHT && nightCount == 1;
+    }
+
     public static boolean isDay() {
         return currentPhase == Phase.DAY;
     }
@@ -120,6 +126,7 @@ public class GameManager {
         currentPhase = phase;
         switch (phase) {
             case NIGHT -> {
+                nightCount++;
                 totalSeconds = nightSeconds;
                 ensureBossBar(BarColor.PURPLE);
                 updateBossBarTitle("밤 시간", true);

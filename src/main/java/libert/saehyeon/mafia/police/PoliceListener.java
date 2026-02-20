@@ -57,6 +57,11 @@ public class PoliceListener implements Listener {
             return;
         }
 
+        if (GameManager.isFirstNight()) {
+            player.sendMessage("첫날밤에는 조사를 할 수 없습니다.");
+            return;
+        }
+
         if (!PoliceManager.canInvestigate(player)) {
             player.sendMessage("이번 밤에는 이미 조사를 완료했습니다.");
             return;
