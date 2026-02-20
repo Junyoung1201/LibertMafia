@@ -39,8 +39,15 @@ public class WeaponListener implements Listener {
         if ("시민".equals(RoleManager.getRole(attacker)) || "경찰".equals(RoleManager.getRole(attacker))) {
             if (!Clue.isWeaponItem(attacker.getInventory().getItemInMainHand())) {
                 event.setCancelled(true);
+            } else {
+                event.setDamage(8);
             }
         }
+    }
+
+    @EventHandler
+    void onDeathNoDropItem(PlayerDeathEvent e) {
+        e.getDrops().clear();
     }
 
     @EventHandler
@@ -66,8 +73,6 @@ public class WeaponListener implements Listener {
             Bukkit.broadcastMessage("§c뭐야 시민이 시민을 죽였네");
             return;
         }
-
-        event.getDrops().clear();
 
         Eliminator.eliminate(victim);
         killer.sendMessage("§7" + victim.getName() + "§f(을)를 처치했습니다.");

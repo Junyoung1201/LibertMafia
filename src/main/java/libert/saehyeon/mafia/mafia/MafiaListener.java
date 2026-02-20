@@ -20,6 +20,8 @@ public class MafiaListener implements Listener {
                 if(!Mafia.canKill(attacker)) {
                     e.setCancelled(true);
                     attacker.sendActionBar("§c흉기로만 공격할 수 있습니다.");
+                } else {
+                    e.setDamage(8);
                 }
             }
         }

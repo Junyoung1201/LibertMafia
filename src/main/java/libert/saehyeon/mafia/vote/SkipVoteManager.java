@@ -35,7 +35,7 @@ public class SkipVoteManager {
             return;
         }
         if (!GameManager.isSkippablePhase()) {
-            sender.sendMessage("현재는 스킵 투표를 진행할 수 없습니다.");
+            sender.sendMessage("§c현재는 스킵 투표를 진행할 수 없습니다.");
             return;
         }
 

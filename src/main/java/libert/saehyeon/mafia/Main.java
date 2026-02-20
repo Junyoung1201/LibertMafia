@@ -70,6 +70,13 @@ public final class Main extends JavaPlugin {
                 world.setGameRule(GameRules.LOCATOR_BAR,false);
                 world.setGameRule(GameRules.SEND_COMMAND_FEEDBACK,false);
                 world.setGameRule(GameRules.COMMAND_BLOCK_OUTPUT,false);
+                world.setGameRule(GameRules.SPAWN_MOBS,false);
+                world.setGameRule(GameRules.SPAWN_MONSTERS,false);
+                world.setGameRule(GameRules.SPAWN_PHANTOMS,false);
+                world.setGameRule(GameRules.SPAWN_WARDENS,false);
+                world.setGameRule(GameRules.SPAWN_WANDERING_TRADERS,false);
+                world.setGameRule(GameRules.SPAWNER_BLOCKS_WORK,false);
+                world.setGameRule(GameRules.IMMEDIATE_RESPAWN,true);
             });
 
             Eliminator.initTeam();
@@ -145,6 +152,10 @@ public final class Main extends JavaPlugin {
             Clue.placeCluesOnce(sender instanceof org.bukkit.entity.Player ? (org.bukkit.entity.Player) sender : null);
             GameManager.startLoop();
 
+            for (Player player : GameManager.getPlayers()) {
+                player.getInventory().addItem(new ItemStack(Material.LANTERN, 1));
+            }
+
             // 모든 플레이어 모험 모드로 변경 및 닉네임 숨기기
             for(Player player : GameManager.getPlayers()) {
                 Eliminator.show(player);
@@ -173,6 +184,10 @@ public final class Main extends JavaPlugin {
             CorpseChest.removeAll();
             Clue.placeCluesOnce(sender instanceof org.bukkit.entity.Player ? (org.bukkit.entity.Player) sender : null);
             GameManager.startLoop();
+
+            for (Player player : GameManager.getPlayers()) {
+                player.getInventory().addItem(new ItemStack(Material.LANTERN, 1));
+            }
             return true;
         }
 

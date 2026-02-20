@@ -102,7 +102,7 @@ public class GameManager {
     }
 
     public static boolean isSkippablePhase() {
-        return currentPhase == Phase.NIGHT || currentPhase == Phase.DAY;
+        return currentPhase == Phase.DAY;
     }
 
     public static boolean skipCurrentPhase() {

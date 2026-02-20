@@ -2,6 +2,7 @@ package libert.saehyeon.mafia;
 
 import libert.saehyeon.mafia.elimiator.Eliminator;
 import libert.saehyeon.mafia.mafia.Mafia;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -36,6 +37,10 @@ public class RoleManager {
         roles.put(mafia.getUniqueId(), "잭 더 리퍼");
         roles.put(police.getUniqueId(), "경찰");
 
+        // Ensure mafia starts clean and receives the weapon.
+        mafia.getInventory().clear();
+        mafia.getInventory().setArmorContents(null);
+        mafia.getInventory().setItemInOffHand(null);
         ItemStack mafiaWeapon = Mafia.createWeaponItem();
         mafia.getInventory().addItem(mafiaWeapon);
 
@@ -85,6 +90,13 @@ public class RoleManager {
             return false;
         }
         roles.put(player.getUniqueId(), normalized);
+        if ("잭 더 리퍼".equals(normalized)) {
+            player.getInventory().clear();
+            player.getInventory().setArmorContents(null);
+            player.getInventory().setItemInOffHand(null);
+            player.getInventory().addItem(Mafia.createWeaponItem());
+            player.getInventory().addItem(new ItemStack(Material.LANTERN));
+        }
         player.sendMessage("당신의 역할이 " + normalized + "로 설정되었습니다.");
         return true;
     }
@@ -166,6 +178,10 @@ public class RoleManager {
         roles.put(forcedMafia.getUniqueId(), "잭 더 리퍼");
         roles.put(police.getUniqueId(), "경찰");
 
+        // Ensure mafia starts clean and receives the weapon.
+        forcedMafia.getInventory().clear();
+        forcedMafia.getInventory().setArmorContents(null);
+        forcedMafia.getInventory().setItemInOffHand(null);
         ItemStack mafiaWeapon = Mafia.createWeaponItem();
         forcedMafia.getInventory().addItem(mafiaWeapon);
 

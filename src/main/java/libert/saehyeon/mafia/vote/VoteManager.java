@@ -86,7 +86,10 @@ public class VoteManager {
         Optional<UUID> result = resolveTopVoted(votes, candidateIds);
 
         if (result.isEmpty()) {
-            Bukkit.broadcastMessage("투표 결과가 없습니다.");
+            for(Player p : Bukkit.getOnlinePlayers()) {
+                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BELL, SoundCategory.MASTER, 0.7f,1.5f);
+                p.sendTitle("","아무도 투표로 처형되지 않았습니다.", 0, 65, 20);
+            }
             return;
         }
 
@@ -107,7 +110,11 @@ public class VoteManager {
         }
 
         Eliminator.eliminate(target);
-        Bukkit.broadcastMessage("§7"+target.getName() + "§f(이)가 투표로 처형되었습니다.");
+
+        for(Player p : Bukkit.getOnlinePlayers()) {
+            p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_HAT, SoundCategory.MASTER, 0.7f,1);
+            p.sendTitle("", "§7"+target.getName()+"§f(이)가 투표로 처형되었습니다!", 0, 70,20);
+        }
 
         GameManager.checkCitizenWin();
     }

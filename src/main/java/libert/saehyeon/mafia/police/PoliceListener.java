@@ -4,6 +4,8 @@ import libert.saehyeon.mafia.GameManager;
 import libert.saehyeon.mafia.RoleManager;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
+import org.bukkit.Sound;
+import org.bukkit.SoundCategory;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -58,7 +60,8 @@ public class PoliceListener implements Listener {
         }
 
         if (GameManager.isFirstNight()) {
-            player.sendMessage("첫날밤에는 조사를 할 수 없습니다.");
+            player.sendMessage("§c첫날밤에는 조사를 할 수 없습니다.");
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, SoundCategory.MASTER, 0.7f,1);
             return;
         }
 
